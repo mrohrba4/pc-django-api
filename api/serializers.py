@@ -7,7 +7,7 @@ from .models.user import User
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = ('id', 'name', 'type', 'quantity', 'description' 'owner')
+        fields = ('id', 'name', 'type', 'quantity', 'description', 'owner')
 
 class UserSerializer(serializers.ModelSerializer):
     # This model serializer will be used for User creation

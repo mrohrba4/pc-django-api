@@ -32,15 +32,16 @@ class Items(generics.ListCreateAPIView):
     # Add user to data object.
     request.data['item']['owner'] = request.user.id
     # Create Item
-    item = ItemSerialier(data=request.data['item'])
+    item = ItemSerializer(data=request.data['item'])
 
     if item.is_valid():
       item.save()
       return Response({ 'item': item.data }, status=status.HTTP_201_CREATED)
 
-    return Response(item.errors, status=status.HTTP_400_BAD_Request)
+    return Response(item.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
+  queryset = ''
   permission_classes=(IsAuthenticated,)
   # Show request
   def get(self, request, pk):
@@ -49,7 +50,7 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
     # Locate the item to show
     item = get_object_or_404(Item, pk=pk)
     # Only show owned items
-    if not request.user.id == entry.owner.id:
+    if not request.user.id == item.owner.id:
       raise PermissionDenied('Unauthorized, you do not own this item.')
 
     data = ItemSerializer(item).data
@@ -59,7 +60,7 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
   def delete(self, request, pk):
     """'Delete Item request'"""
     # Locate Item to delete
-    entry = get_object_or_404(Item, pk=pk)
+    item = get_object_or_404(Item, pk=pk)
 
     # Check it requestor has permission.
     if not request.user.id == item.owner.id:
@@ -73,7 +74,7 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
       if request.data['item'].get('owner', False):
         del request.data['item']['owner']
 
-      entry = get_object_or_404(Item, pk=pk)
+      item = get_object_or_404(Item, pk=pk)
 
       if not request.user.id == item.owner.id:
         raise PermissionDenied('Unaquthorized, you do not own this item.')
